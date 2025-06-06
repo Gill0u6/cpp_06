@@ -6,11 +6,16 @@
 /*   By: agilles <agilles@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 16:34:27 by agilles           #+#    #+#             */
-/*   Updated: 2025/06/04 17:18:41 by agilles          ###   ########.fr       */
+/*   Updated: 2025/06/06 16:07:36 by agilles          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/ScalarConvert.hpp"
+
+ScalarConvert::ScalarConvert()
+{
+	std::cout << "ScalarConvert Default constructor called" << std::endl;
+}
 
 ScalarConvert::ScalarConvert(std::string input): _input(input)
 {
@@ -75,5 +80,29 @@ void ScalarConvert::fromFloat(void)
 void ScalarConvert::fromDouble(void)
 {
 
+}
+
+int	ScalarConvert::checkInput()
+{
+	if (this->getInput().compare("nan") == 0 || this->getInput().compare("+inf") == 0 ||
+			this->getInput().compare("-inf")  == 0 || this->getInput().compare("+inff") == 0 || this->getInput().compare("-inff") == 0)
+			return (NAN_INF);
+	else if (this->getInput().length() == 1 &&
+				(this->getInput()[0] == '+' || this->getInput()[0] == '-' ||
+				this->getInput()[0] == 'f' || this->getInput()[0] == '.'))
+		return (CHAR);
+}
+
+void ScalarConvert::ConvertInput()
+{
+	void	(ScalarConvert::*fromPTRS[])(void) = {
+				&ScalarConvert::fromChar,
+				&ScalarConvert::fromInt,
+				&ScalarConvert::fromFloat,
+				&ScalarConvert::fromDouble
+			};
+	int		types[] = {CHAR, INT, FLOAT, DOUBLE};
+
+	this->_type = checkInput();
 }
 
