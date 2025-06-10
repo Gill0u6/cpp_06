@@ -6,7 +6,7 @@
 /*   By: agilles <agilles@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 16:34:27 by agilles           #+#    #+#             */
-/*   Updated: 2025/06/10 16:17:24 by agilles          ###   ########.fr       */
+/*   Updated: 2025/06/10 17:37:36 by agilles          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,16 @@ ScalarConvert::ScalarConvert()
 ScalarConvert::ScalarConvert(std::string input): _input(input)
 {
 	std::cout << "ScalarConvert input constructor called for " << input << std::endl;
+	this->_double = atof(this->getInput().c_str());
+	this->ConvertInput();
+	this->printOutput();
 }
 
 ScalarConvert::ScalarConvert(const ScalarConvert &cp)
 {
 	std::cout << "ScalarConvert copy constructor called" << std::endl;
+	*this = cp;
+	this->printOutput();
 }
 
 ScalarConvert::~ScalarConvert()
@@ -32,22 +37,82 @@ ScalarConvert::~ScalarConvert()
 	std::cout << "ScalarConvert deconstructor called" << std::endl;
 }
 
-char	ScalarConvert::getChar()
+void	ScalarConvert::printOutput()
+{
+	if (this->getType() != NAN_INF && this->getDouble() <= 255 && this->getDouble() >= 0)
+	{
+		if (isprint(this->getChar()))
+			std::cout << "char: '" << this->getChar() << "'" << std::endl;
+		else
+			std::cout << "char: Non displayable" << std::endl;
+	}
+	else
+		std::cout << "char: impossible" << std::endl;
+
+	if (this->getType() != NAN_INF && this->getDouble() >= std::numeric_limits<int>::min() && this->getDouble() <= std::numeric_limits<int>::max())
+		std::cout << "int: " << this->getInt() << std::endl;
+	else
+		std::cout << "int: impossible" << std::endl;
+
+	if (this->getType() != NAN_INF)
+	{
+		std::cout << "float: " << this->getFloat();
+		if (this->getFloat() - this->getInt() == 0)
+			std::cout << ".0f" << std::endl;
+		else
+			std::cout << "f" << std::endl;
+	}
+	else
+	{
+		if (this->getInput() == "nan" || this->getInput() == "nanf")
+			std::cout << "float: nanf" << std::endl;
+		else if (this->getInput()[0] == '+')
+			std::cout << "float: +inff" << std::endl;
+		else
+			std::cout << "float: -inff" << std::endl;
+	}
+
+	if (this->getType() != NAN_INF)
+	{
+		std::cout << "double: " << this->getDouble();
+		if (this->getDouble() < std::numeric_limits<int>::min() || this->getDouble() > std::numeric_limits<int>::max() ||
+				this->getDouble() - this->getInt() == 0)
+			std::cout << ".0" << std::endl;
+		else
+			std::cout << std::endl;
+	}
+	else
+	{
+		if (this->getInput() == "nan" || this->getInput() == "nanf")
+			std::cout << "double: nan" << std::endl;
+		else if (this->getInput()[0] == '+')
+			std::cout << "double: +inf" << std::endl;
+		else
+			std::cout << "double: -inf" << std::endl;
+	}
+}
+
+int		ScalarConvert::getType()const
+{
+	return (this->_type);
+}
+
+char	ScalarConvert::getChar()const
 {
 	return (this->_char);
 }
 
-int		ScalarConvert::getInt()
+int		ScalarConvert::getInt()const
 {
 	return (this->_int);
 }
 
-float	ScalarConvert::getFloat()
+float	ScalarConvert::getFloat()const
 {
 	return (this->_float);
 }
 
-double	ScalarConvert::getDouble()
+double	ScalarConvert::getDouble()const
 {
 	return (this->_double);
 }
@@ -74,12 +139,16 @@ void ScalarConvert::fromInt(void)
 
 void ScalarConvert::fromFloat(void)
 {
-
+	this->_float = static_cast<float>(this->getDouble());
+	this->_int = static_cast<int>(this->getFloat());
+	this->_char = static_cast<char>(this->getFloat());
 }
 
 void ScalarConvert::fromDouble(void)
 {
-
+	this->_char = static_cast<char>(this->getDouble());
+	this->_int = static_cast<int>(this->getDouble());
+	this->_float = static_cast<float>(this->getDouble());
 }
 
 int	ScalarConvert::checkInput()
@@ -136,7 +205,7 @@ void ScalarConvert::ConvertInput()
 	if (this->_type == NAN_INF)
 		return ;
 
-	for (int i = 0; i++; i < 4)
+	for (int i = 0; i < 4; i++)
 	{
 		if (types[i] == this->_type)
 		{
@@ -144,5 +213,26 @@ void ScalarConvert::ConvertInput()
 			break;
 		}
 	}
+}
+
+const char *ScalarConvert::ErrorException::what(void) const throw()
+{
+	return ("Error: Impossible to convert");
+}
+
+ScalarConvert &ScalarConvert::operator=(const ScalarConvert &cp)
+{
+	std::cout << "ScalarConvert assignation operator called" << std::endl;
+	if (this == &cp)
+		return (*this);
+
+	this->_int = cp.getInt();
+	this->_char = cp.getChar();
+	this->_double = cp.getDouble();
+	this->_float = cp.getFloat();
+	this->_type = cp.getType();
+
+	return (*this);
+
 }
 
