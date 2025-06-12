@@ -6,7 +6,7 @@
 /*   By: agilles <agilles@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 16:34:27 by agilles           #+#    #+#             */
-/*   Updated: 2025/06/10 17:37:36 by agilles          ###   ########.fr       */
+/*   Updated: 2025/06/12 17:05:30 by agilles          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,56 +39,61 @@ ScalarConvert::~ScalarConvert()
 
 void	ScalarConvert::printOutput()
 {
-	if (this->getType() != NAN_INF && this->getDouble() <= 255 && this->getDouble() >= 0)
-	{
-		if (isprint(this->getChar()))
-			std::cout << "char: '" << this->getChar() << "'" << std::endl;
-		else
-			std::cout << "char: Non displayable" << std::endl;
-	}
+	if (this->getType() == ERROR)
+		throw ScalarConvert::ErrorException();
 	else
-		std::cout << "char: impossible" << std::endl;
+	{
+		if (this->getType() != NAN_INF && this->getDouble() <= 255 && this->getDouble() >= 0)
+		{
+			if (isprint(this->getChar()))
+				std::cout << "char: '" << this->getChar() << "'" << std::endl;
+			else
+				std::cout << "char: Non displayable" << std::endl;
+		}
+		else
+			std::cout << "char: impossible" << std::endl;
 
-	if (this->getType() != NAN_INF && this->getDouble() >= std::numeric_limits<int>::min() && this->getDouble() <= std::numeric_limits<int>::max())
-		std::cout << "int: " << this->getInt() << std::endl;
-	else
-		std::cout << "int: impossible" << std::endl;
+		if (this->getType() != NAN_INF && this->getDouble() >= std::numeric_limits<int>::min() && this->getDouble() <= std::numeric_limits<int>::max())
+			std::cout << "int: " << this->getInt() << std::endl;
+		else
+			std::cout << "int: impossible" << std::endl;
 
-	if (this->getType() != NAN_INF)
-	{
-		std::cout << "float: " << this->getFloat();
-		if (this->getFloat() - this->getInt() == 0)
-			std::cout << ".0f" << std::endl;
+		if (this->getType() != NAN_INF)
+		{
+			std::cout << "float: " << this->getFloat();
+			if (this->getFloat() - this->getInt() == 0)
+				std::cout << ".0f" << std::endl;
+			else
+				std::cout << "f" << std::endl;
+		}
 		else
-			std::cout << "f" << std::endl;
-	}
-	else
-	{
-		if (this->getInput() == "nan" || this->getInput() == "nanf")
-			std::cout << "float: nanf" << std::endl;
-		else if (this->getInput()[0] == '+')
-			std::cout << "float: +inff" << std::endl;
-		else
-			std::cout << "float: -inff" << std::endl;
-	}
+		{
+			if (this->getInput() == "nan" || this->getInput() == "nanf")
+				std::cout << "float: nanf" << std::endl;
+			else if (this->getInput()[0] == '+')
+				std::cout << "float: +inff" << std::endl;
+			else
+				std::cout << "float: -inff" << std::endl;
+		}
 
-	if (this->getType() != NAN_INF)
-	{
-		std::cout << "double: " << this->getDouble();
-		if (this->getDouble() < std::numeric_limits<int>::min() || this->getDouble() > std::numeric_limits<int>::max() ||
-				this->getDouble() - this->getInt() == 0)
-			std::cout << ".0" << std::endl;
+		if (this->getType() != NAN_INF)
+		{
+			std::cout << "double: " << this->getDouble();
+			if (this->getDouble() < std::numeric_limits<int>::min() || this->getDouble() > std::numeric_limits<int>::max() ||
+					this->getDouble() - this->getInt() == 0)
+				std::cout << ".0" << std::endl;
+			else
+				std::cout << std::endl;
+		}
 		else
-			std::cout << std::endl;
-	}
-	else
-	{
-		if (this->getInput() == "nan" || this->getInput() == "nanf")
-			std::cout << "double: nan" << std::endl;
-		else if (this->getInput()[0] == '+')
-			std::cout << "double: +inf" << std::endl;
-		else
-			std::cout << "double: -inf" << std::endl;
+		{
+			if (this->getInput() == "nan" || this->getInput() == "nanf")
+				std::cout << "double: nan" << std::endl;
+			else if (this->getInput()[0] == '+')
+				std::cout << "double: +inf" << std::endl;
+			else
+				std::cout << "double: -inf" << std::endl;
+		}
 	}
 }
 
@@ -167,7 +172,7 @@ int	ScalarConvert::checkInput()
 	else if (this->getInput().find_first_not_of("+-0123456789.") == std::string::npos)
 	{
 		if (this->getInput().find_first_of(".") != this->getInput().find_last_of(".") ||
-				isdigit(this->getInput()[this->getInput().find_first_of(".") + 1]) != 0 ||
+				isdigit(this->getInput()[this->getInput().find_first_of(".") + 1]) == 0 ||
 				this->getInput().find_first_of(".") == 0
 				)
 			return (ERROR);
